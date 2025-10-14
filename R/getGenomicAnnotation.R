@@ -90,7 +90,7 @@ getGenomicAnnotation <- function(peaks,
 
             if(is.null(threeUTRList)){
                 threeUTRList <- threeUTRsByTranscript(TxDb)
-                update_cache_item(item = item, list("threeUTRList" = threeUTRList))
+                update_cache_item(item = "ChIPseekerEnv", list("threeUTRList" = threeUTRList))
             }
 
             # if ( exists("threeUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
@@ -106,7 +106,7 @@ getGenomicAnnotation <- function(peaks,
 
             if(is.null(fiveUTRList)){
                 fiveUTRList <- threeUTRsByTranscript(TxDb)
-                update_cache_item(item = item, list("fiveUTRList" = fiveUTRList))
+                update_cache_item(item = "ChIPseekerEnv", list("fiveUTRList" = fiveUTRList))
             }
 
             # if ( exists("fiveUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {

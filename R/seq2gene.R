@@ -40,11 +40,11 @@ seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
     exons <- getGenomicAnnotation.internal(seq, exonList, type = "Exon", sameStrand=sameStrand)
     
     ## Introns
-    intronList <- get_cache_element(item = item, elements = "intronList")
+    intronList <- get_cache_element(item = "ChIPseekerEnv", elements = "intronList")
 
     if(is.null(intronList)){
         intronList <- intronsByTranscript(TxDb)
-        update_cache_item(item = item, list("intronList" = intronList))
+        update_cache_item(item = "ChIPseekerEnv", list("intronList" = intronList))
     }
 
     # if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {
