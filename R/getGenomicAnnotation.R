@@ -22,6 +22,8 @@ updateGenomicAnnotation <- function(peaks, genomicRegion, type, anno, sameStrand
 ##' @param sameStrand whether annotate gene in same strand
 ##' @importFrom GenomicFeatures threeUTRsByTranscript
 ##' @importFrom GenomicFeatures fiveUTRsByTranscript
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
 ##' @return character vector
 ##' @author G Yu
 getGenomicAnnotation <- function(peaks,
@@ -50,7 +52,7 @@ getGenomicAnnotation <- function(peaks,
 
 
     .ChIPseekerEnv(TxDb)
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
 
     annotation <- rep(NA, length(distance))
@@ -74,29 +76,45 @@ getGenomicAnnotation <- function(peaks,
     for (AP in genomicAnnotationPriority) {
         if (AP == "Intron") {
             ## Introns
-            intronList <- get_intronList(ChIPseekerEnv)
+            # intronList <- get_intronList(ChIPseekerEnv)
+            intronList <- get_intronList()
             anno <- updateGenomicAnnotation(peaks, intronList, "Intron", anno, sameStrand=sameStrand)
         } else if (AP == "Exon") {
             ## Exons
-            exonList <- get_exonList(ChIPseekerEnv)
+            # exonList <- get_exonList(ChIPseekerEnv)
+            exonList <- get_exonList()
             anno <- updateGenomicAnnotation(peaks, exonList, "Exon", anno, sameStrand=sameStrand)
         } else if (AP == "3UTR") {
             ## 3' UTR Exons
-            if ( exists("threeUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-                threeUTRList <- get("threeUTRList", envir=ChIPseekerEnv)
-            } else {
+            threeUTRList <- get_cache_element(item = "ChIPseekerEnv", elements = "threeUTRList")
+
+            if(is.null(threeUTRList)){
                 threeUTRList <- threeUTRsByTranscript(TxDb)
-                assign("threeUTRList", threeUTRList, envir=ChIPseekerEnv)
+                update_cache_item(item = item, list("threeUTRList" = threeUTRList))
             }
+
+            # if ( exists("threeUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+            #     threeUTRList <- get("threeUTRList", envir=ChIPseekerEnv)
+            # } else {
+            #     threeUTRList <- threeUTRsByTranscript(TxDb)
+            #     assign("threeUTRList", threeUTRList, envir=ChIPseekerEnv)
+            # }
             anno <- updateGenomicAnnotation(peaks, threeUTRList, "threeUTR", anno, sameStrand=sameStrand)
         } else if (AP == "5UTR") {
             ## 5' UTR Exons
-            if ( exists("fiveUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-                fiveUTRList <- get("fiveUTRList", envir=ChIPseekerEnv)
-            } else {
-                fiveUTRList <- fiveUTRsByTranscript(TxDb)
-                assign("fiveUTRList", fiveUTRList, envir=ChIPseekerEnv)
+            fiveUTRList <- get_cache_element(item = "ChIPseekerEnv", elements = "fiveUTRList")
+
+            if(is.null(fiveUTRList)){
+                fiveUTRList <- threeUTRsByTranscript(TxDb)
+                update_cache_item(item = item, list("fiveUTRList" = fiveUTRList))
             }
+
+            # if ( exists("fiveUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+            #     fiveUTRList <- get("fiveUTRList", envir=ChIPseekerEnv)
+            # } else {
+            #     fiveUTRList <- fiveUTRsByTranscript(TxDb)
+            #     assign("fiveUTRList", fiveUTRList, envir=ChIPseekerEnv)
+            # }
             anno <- updateGenomicAnnotation(peaks, fiveUTRList, "fiveUTR", anno, sameStrand=sameStrand)
         } else if (AP == "Promoter") {
             annotation <- anno[["annotation"]]
