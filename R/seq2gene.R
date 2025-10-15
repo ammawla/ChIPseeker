@@ -21,7 +21,7 @@
 ##' @importFrom yulab.utils update_cache_item
 ##' @author Guangchuang Yu
 seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
-    .ChIPseekerEnv(TxDb)
+    .ChIPseekerEnv(TxDb, item = ChIPseekerCache)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
     
     ## Exons
