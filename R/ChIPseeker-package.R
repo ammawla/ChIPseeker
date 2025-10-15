@@ -18,3 +18,4 @@ NULL
 ##' Name of the ChIPseeker cache environment (internal static variable)
 ##' @format character vector 
 ChIPseekerCache <- "ChIPseekerEnv"
+
