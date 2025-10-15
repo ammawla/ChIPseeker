@@ -23,12 +23,15 @@
 seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
     .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
     
     ## Exons
-    exonList <- get_cache_element(item = "ChIPseekerEnv", elements = "exonList")
+    exonList <- get_cache_element(item = ChIPseekerCache, elements = "exonList")
     if(is.null(exonList)){
         exonList <- exonsBy(TxDb)
-        update_cache_item(item = "ChIPseekerEnv", list("exonList" = exonList))
+        update_cache_item(item = ChIPseekerCache, list("exonList" = exonList))
     }
 
     # if ( exists("exonList", envir=ChIPseekerEnv, inherits=FALSE) ) {
@@ -40,11 +43,11 @@ seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
     exons <- getGenomicAnnotation.internal(seq, exonList, type = "Exon", sameStrand=sameStrand)
     
     ## Introns
-    intronList <- get_cache_element(item = "ChIPseekerEnv", elements = "intronList")
+    intronList <- get_cache_element(item = ChIPseekerCache, elements = "intronList")
 
     if(is.null(intronList)){
         intronList <- intronsByTranscript(TxDb)
-        update_cache_item(item = "ChIPseekerEnv", list("intronList" = intronList))
+        update_cache_item(item = ChIPseekerCache, list("intronList" = intronList))
     }
 
     # if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {

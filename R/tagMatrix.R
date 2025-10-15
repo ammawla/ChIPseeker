@@ -66,6 +66,9 @@ getBioRegion <- function(TxDb=NULL,
   TxDb <- loadTxDb(TxDb)
   .ChIPseekerEnv(TxDb)
   # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+
+  # set env 
+  ChIPseekerCache <- "ChIPseekerEnv"
   
   label <- make_label(type = type, by = by)
   
@@ -76,13 +79,13 @@ getBioRegion <- function(TxDb=NULL,
   
   if (by == "exon") {
     # exonList <- get_exonList(ChIPseekerEnv)
-    exonList <- get_exonList()
+    exonList <- get_exonList(item = ChIPseekerCache)
     regions <-  unlist(exonList)
   }
   
   if (by == "intron") {
     # intronList <- get_intronList(ChIPseekerEnv)
-    intronList <- get_intronList()
+    intronList <- get_intronList(item = ChIPseekerCache)
     regions <- unlist(intronList)
   }
   

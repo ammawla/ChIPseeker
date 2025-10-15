@@ -223,10 +223,13 @@ TXID2EG <- function(txid, geneIdOnly=FALSE) {
 TXID2TXEG <- function(txid) {
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    txid2geneid <- get_cache_element(item = "ChIPseekerEnv", elements = "txid2geneid")
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
+
+    txid2geneid <- get_cache_element(item = ChIPseekerCache, elements = "txid2geneid")
 
     if(is.null(txid2geneid)){
-        txdb <- get_cache_element(item = "ChIPseekerEnv", elements = "TXDB")
+        txdb <- get_cache_element(item = ChIPseekerCache, elements = "TXDB")
         txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
         txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
@@ -236,7 +239,7 @@ TXID2TXEG <- function(txid) {
         txid2geneid <- sub("/NA", "", txid2geneid)
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
-        update_cache_item(item = "ChIPseekerEnv", list("txid2geneid" = txid2geneid))
+        update_cache_item(item = ChIPseekerCache, list("txid2geneid" = txid2geneid))
     }
 
     # if (exists("txid2geneid", envir=ChIPseekerEnv, inherits=FALSE)) {
@@ -262,17 +265,20 @@ TXID2TXEG <- function(txid) {
 TXID2EGID <- function(txid) {
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    txid2eg <- get_cache_element(item = "ChIPseekerEnv", elements = "txid2eg")
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
+
+    txid2eg <- get_cache_element(item = ChIPseekerCache, elements = "txid2eg")
 
     if(is.null(txid2eg)){
-        txdb <- get_cache_element(item = "ChIPseekerEnv", elements = "TXDB")
+        txdb <- get_cache_element(item = ChIPseekerCache, elements = "TXDB")
         txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
         txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
         txid2geneid <- as.character(mcols(txidinfo)[["gene_id"]])
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
-        update_cache_item(item = "ChIPseekerEnv", list("txid2eg" = txid2eg))
+        update_cache_item(item = ChIPseekerCache, list("txid2eg" = txid2eg))
     }
 
     # if (exists("txid2eg", envir=ChIPseekerEnv, inherits=FALSE)) {
@@ -400,15 +406,18 @@ getGene <- function(TxDb, by="gene") {
     # .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
+
     by <- match.arg(by, c("gene", "transcript"))
 
     if (by == "gene") {
 
-        features <- get_cache_element(item = "ChIPseekerEnv", elements = "Genes")
+        features <- get_cache_element(item = ChIPseekerCache, elements = "Genes")
 
         if(is.null(features)){
             features <- suppressMessages(genes(TxDb))
-            update_cache_item(item = "ChIPseekerEnv", list("Genes" = features))
+            update_cache_item(item = ChIPseekerCache, list("Genes" = features))
         }
 
         # if ( exists("Genes", envir=ChIPseekerEnv, inherits=FALSE) ) {
@@ -419,12 +428,12 @@ getGene <- function(TxDb, by="gene") {
         # }
     } else {
 
-        features <- get_cache_element(item = "ChIPseekerEnv", elements = "Transcripts")
+        features <- get_cache_element(item = ChIPseekerCache, elements = "Transcripts")
 
         if(is.null(features)){
             features <- transcriptsBy(TxDb)
             features <- unlist(features)
-            update_cache_item(item = "ChIPseekerEnv", list("Transcripts" = features))
+            update_cache_item(item = ChIPseekerCache, list("Transcripts" = features))
         }
 
         # if ( exists("Transcripts", envir=ChIPseekerEnv, inherits=FALSE) ) {

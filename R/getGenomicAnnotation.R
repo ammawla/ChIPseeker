@@ -54,6 +54,8 @@ getGenomicAnnotation <- function(peaks,
     .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
 
     annotation <- rep(NA, length(distance))
 
@@ -77,20 +79,20 @@ getGenomicAnnotation <- function(peaks,
         if (AP == "Intron") {
             ## Introns
             # intronList <- get_intronList(ChIPseekerEnv)
-            intronList <- get_intronList()
+            intronList <- get_intronList(item = ChIPseekerCache)
             anno <- updateGenomicAnnotation(peaks, intronList, "Intron", anno, sameStrand=sameStrand)
         } else if (AP == "Exon") {
             ## Exons
             # exonList <- get_exonList(ChIPseekerEnv)
-            exonList <- get_exonList()
+            exonList <- get_exonList(item = ChIPseekerCache)
             anno <- updateGenomicAnnotation(peaks, exonList, "Exon", anno, sameStrand=sameStrand)
         } else if (AP == "3UTR") {
             ## 3' UTR Exons
-            threeUTRList <- get_cache_element(item = "ChIPseekerEnv", elements = "threeUTRList")
+            threeUTRList <- get_cache_element(item = ChIPseekerCache, elements = "threeUTRList")
 
             if(is.null(threeUTRList)){
                 threeUTRList <- threeUTRsByTranscript(TxDb)
-                update_cache_item(item = "ChIPseekerEnv", list("threeUTRList" = threeUTRList))
+                update_cache_item(item = ChIPseekerCache, list("threeUTRList" = threeUTRList))
             }
 
             # if ( exists("threeUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {
@@ -102,11 +104,11 @@ getGenomicAnnotation <- function(peaks,
             anno <- updateGenomicAnnotation(peaks, threeUTRList, "threeUTR", anno, sameStrand=sameStrand)
         } else if (AP == "5UTR") {
             ## 5' UTR Exons
-            fiveUTRList <- get_cache_element(item = "ChIPseekerEnv", elements = "fiveUTRList")
+            fiveUTRList <- get_cache_element(item = ChIPseekerCache, elements = "fiveUTRList")
 
             if(is.null(fiveUTRList)){
                 fiveUTRList <- threeUTRsByTranscript(TxDb)
-                update_cache_item(item = "ChIPseekerEnv", list("fiveUTRList" = fiveUTRList))
+                update_cache_item(item = ChIPseekerCache, list("fiveUTRList" = fiveUTRList))
             }
 
             # if ( exists("fiveUTRList", envir=ChIPseekerEnv, inherits=FALSE) ) {

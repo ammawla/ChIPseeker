@@ -18,6 +18,10 @@
 ##' @importFrom yulab.utils update_cache_item
 ##' @author G Yu
 enrichAnnoOverlap <- function(queryPeak, targetPeak, TxDb=NULL, pAdjustMethod="BH", chainFile=NULL, distanceToTSS_cutoff=NULL) {
+    
+    # set env 
+    ChIPseekerCache <- "ChIPseekerEnv"
+
     TxDb <- loadTxDb(TxDb)
 
     query.anno <- annotatePeak(queryPeak, TxDb=TxDb,
@@ -47,13 +51,12 @@ enrichAnnoOverlap <- function(queryPeak, targetPeak, TxDb=NULL, pAdjustMethod="B
     }
 
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-
-    features <- get_cache_element(item = "ChIPseekerEnv", elements = "Transcripts")
+    features <- get_cache_element(item = ChIPseekerCache, elements = "Transcripts")
 
     if(is.null(features)){
         features <- transcriptsBy(TxDb)
         features <- unlist(features)
-        update_cache_item(item = "ChIPseekerEnv", list("Transcripts" = features))
+        update_cache_item(item = ChIPseekerCache, list("Transcripts" = features))
     }
 
     # if ( exists("Transcripts", envir=ChIPseekerEnv, inherits=FALSE) ) {
