@@ -1,58 +1,123 @@
-##' @importFrom AnnotationDbi get
-.ChIPseekerEnv <- function(TxDb) {
-    pos <- 1
-    envir <- as.environment(pos)
-    if (!exists("ChIPseekerEnv", envir=.GlobalEnv)) {
-        assign("ChIPseekerEnv", new.env(), envir = envir)
+#' @title env function for ChIPseeker
+#' @param TxDb txdb object
+#' @param item item name
+#' @param force force to update txdb item in cache or not.
+#' @importFrom yulab.utils get_cache_item
+#' @importFrom yulab.utils update_cache_item
+#' @importFrom yulab.utils rm_cache_item
+#' @importFrom yulab.utils initial_cache_item
+#' @importFrom S4Vectors metadata
+.ChIPseekerEnv <- function(TxDb, item = "ChIPseekerEnv", force = FALSE) {
+    
+    # get cache item
+    # it will create a list if there is no a cache item
+    cache_item <- get_cache_item(item)
+
+    # if there is no TXDB cached, write in cache
+    if (is.null(cache_item$TXDB)) {
+        update_cache_item(item = item, list(TXDB = TxDb))
+        return(invisible(NULL))
     }
 
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-    if (!exists("TXDB", envir=ChIPseekerEnv, inherits=FALSE)) {
-        ## first run
-        assign("TXDB", TxDb, envir=ChIPseekerEnv)
-    } else {
-        TXDB <- get("TXDB", envir=ChIPseekerEnv)
-        m1 <- tryCatch(unlist(metadata(TXDB)), error=function(e) NULL)
-
-        m2 <- unlist(metadata(TxDb))
-
-        if (!is.null(m1)) {
-            m1 <- m1[!is.na(m1)]
-        }
-        m2 <- m2[!is.na(m2)]
-
-        if ( is.null(m1) || length(m1) != length(m2) || any(m1 != m2) ) {
-            rm(ChIPseekerEnv)
-            assign("ChIPseekerEnv", new.env(), envir = envir)
-            ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-            assign("TXDB", TxDb, envir=ChIPseekerEnv)
-        }
+    # force to update item
+    if(force){
+        cat(">> Force to update txdb in cache...\n")
+        rm_cache_item(item)           
+        initial_cache_item(item)      
+        update_cache_item(item, list(TXDB = TxDb))  
     }
 
+    # if exist TXDB
+    TXDB <- cache_item$TXDB
+    m1 <- tryCatch(unlist(metadata(TXDB)), error = function(e) NULL)
+    m2 <- tryCatch(unlist(metadata(TxDb)),  error = function(e) NULL)
+    if (!is.null(m1)) m1 <- m1[!is.na(m1)]
+    if (!is.null(m2)) m2 <- m2[!is.na(m2)]
+
+    if (is.null(m1) || is.null(m2) || length(m1) != length(m2) || any(m1 != m2)) {
+        cat(">> Update txdb in cache...\n")
+        rm_cache_item(item)           
+        initial_cache_item(item)      
+        update_cache_item(item, list(TXDB = TxDb))  
+    }
+
+    invisible(NULL)
+
+    # pos <- 1
+    # envir <- as.environment(pos)
+    # if (!exists("ChIPseekerEnv", envir=.GlobalEnv)) {
+    #     assign("ChIPseekerEnv", new.env(), envir = envir)
+    # }
+
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # if (!exists("TXDB", envir=ChIPseekerEnv, inherits=FALSE)) {
+    #     ## first run
+    #     assign("TXDB", TxDb, envir=ChIPseekerEnv)
+    # } else {
+    #     TXDB <- get("TXDB", envir=ChIPseekerEnv)
+    #     m1 <- tryCatch(unlist(metadata(TXDB)), error=function(e) NULL)
+
+    #     m2 <- unlist(metadata(TxDb))
+
+    #     if (!is.null(m1)) {
+    #         m1 <- m1[!is.na(m1)]
+    #     }
+    #     m2 <- m2[!is.na(m2)]
+
+    #     if ( is.null(m1) || length(m1) != length(m2) || any(m1 != m2) ) {
+    #         rm(ChIPseekerEnv)
+    #         assign("ChIPseekerEnv", new.env(), envir = envir)
+    #         ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    #         assign("TXDB", TxDb, envir=ChIPseekerEnv)
+    #     }
+    # }
 }
 
 
 ##' @importFrom GenomicFeatures exonsBy
-get_exonList <- function(ChIPseekerEnv) {
-    TxDb <- get("TXDB", envir=ChIPseekerEnv)
-    if ( exists("exonList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-        exonList <- get("exonList", envir=ChIPseekerEnv)
-    } else {
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
+get_exonList <- function(item = "ChIPseekerEnv") {
+    # TxDb <- get("TXDB", envir=ChIPseekerEnv)
+    TxDb <- get_cache_element(item = item, elements = "TXDB")
+
+    exonList <- get_cache_element(item = item, elements = "exonList")
+
+    if(is.null(exonList)){
         exonList <- exonsBy(TxDb)
-        assign("exonList", exonList, envir=ChIPseekerEnv)
+        update_cache_item(item = item, list("exonList" = exonList))
     }
+
+    # if ( exists("exonList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+    #     exonList <- get("exonList", envir=ChIPseekerEnv)
+    # } else {
+    #     exonList <- exonsBy(TxDb)
+    #     assign("exonList", exonList, envir=ChIPseekerEnv)
+    # }
     return(exonList)
 }
 
 ##' @importFrom GenomicFeatures intronsByTranscript
-get_intronList <- function(ChIPseekerEnv) {
-    TxDb <- get("TXDB", envir=ChIPseekerEnv)
-    if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-        intronList <- get("intronList", envir=ChIPseekerEnv)
-    } else {
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
+get_intronList <- function(item = "ChIPseekerEnv") {
+
+    # TxDb <- get("TXDB", envir=ChIPseekerEnv)
+    TxDb <- get_cache_element(item = item, elements = "TXDB")
+
+    intronList <- get_cache_element(item = item, elements = "intronList")
+
+    if(is.null(intronList)){
         intronList <- intronsByTranscript(TxDb)
-        assign("intronList", intronList, envir=ChIPseekerEnv)
+        update_cache_item(item = item, list("intronList" = intronList))
     }
+
+    # if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+    #     intronList <- get("intronList", envir=ChIPseekerEnv)
+    # } else {
+    #     intronList <- intronsByTranscript(TxDb)
+    #     assign("intronList", intronList, envir=ChIPseekerEnv)
+    # }
     return(intronList)
 }
 
@@ -153,42 +218,75 @@ TXID2EG <- function(txid, geneIdOnly=FALSE) {
 }
 
 ##' @importFrom GenomicFeatures transcripts
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
 TXID2TXEG <- function(txid) {
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    if (exists("txid2geneid", envir=ChIPseekerEnv, inherits=FALSE)) {
-        txid2geneid <- get("txid2geneid", envir=ChIPseekerEnv)
-    } else {
-        txdb <- get("TXDB", envir=ChIPseekerEnv)
+    txid2geneid <- get_cache_element(item = ChIPseekerCache, elements = "txid2geneid")
+
+    if(is.null(txid2geneid)){
+        txdb <- get_cache_element(item = ChIPseekerCache, elements = "TXDB")
         txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
         txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
         txid2geneid <- paste(mcols(txidinfo)[["tx_name"]],
-                             mcols(txidinfo)[["gene_id"]],
-                             sep="/")
+                                mcols(txidinfo)[["gene_id"]],
+                                sep="/")
         txid2geneid <- sub("/NA", "", txid2geneid)
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
-        assign("txid2geneid", txid2geneid, envir=ChIPseekerEnv)
+        update_cache_item(item = ChIPseekerCache, list("txid2geneid" = txid2geneid))
     }
+
+    # if (exists("txid2geneid", envir=ChIPseekerEnv, inherits=FALSE)) {
+    #     txid2geneid <- get("txid2geneid", envir=ChIPseekerEnv)
+    # } else {
+    #     txdb <- get("TXDB", envir=ChIPseekerEnv)
+    #     txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
+    #     idx <- which(sapply(txidinfo$gene_id, length) == 0)
+    #     txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
+    #     txid2geneid <- paste(mcols(txidinfo)[["tx_name"]],
+    #                          mcols(txidinfo)[["gene_id"]],
+    #                          sep="/")
+    #     txid2geneid <- sub("/NA", "", txid2geneid)
+
+    #     names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
+    #     assign("txid2geneid", txid2geneid, envir=ChIPseekerEnv)
+    # }
     return(as.character(txid2geneid[txid]))
 }
 
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
 TXID2EGID <- function(txid) {
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    if (exists("txid2eg", envir=ChIPseekerEnv, inherits=FALSE)) {
-        txid2geneid <- get("txid2eg", envir=ChIPseekerEnv)
-    } else {
-        txdb <- get("TXDB", envir=ChIPseekerEnv)
+    txid2eg <- get_cache_element(item = ChIPseekerCache, elements = "txid2eg")
+
+    if(is.null(txid2eg)){
+        txdb <- get_cache_element(item = ChIPseekerCache, elements = "TXDB")
         txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
         txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
         txid2geneid <- as.character(mcols(txidinfo)[["gene_id"]])
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
-        assign("txid2eg", txid2geneid, envir=ChIPseekerEnv)
+        update_cache_item(item = ChIPseekerCache, list("txid2eg" = txid2eg))
     }
+
+    # if (exists("txid2eg", envir=ChIPseekerEnv, inherits=FALSE)) {
+    #     txid2geneid <- get("txid2eg", envir=ChIPseekerEnv)
+    # } else {
+    #     txdb <- get("TXDB", envir=ChIPseekerEnv)
+    #     txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
+    #     idx <- which(sapply(txidinfo$gene_id, length) == 0)
+    #     txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
+    #     txid2geneid <- as.character(mcols(txidinfo)[["gene_id"]])
+
+    #     names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
+    #     assign("txid2eg", txid2geneid, envir=ChIPseekerEnv)
+    # }
     return(as.character(txid2geneid[txid]))
 }
 
@@ -296,27 +394,46 @@ loadTxDb <- function(TxDb) {
 ##' @importFrom AnnotationDbi get
 ##' @importFrom GenomicFeatures genes
 ##' @importFrom GenomicFeatures transcriptsBy
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
 getGene <- function(TxDb, by="gene") {
-    .ChIPseekerEnv(TxDb)
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # .ChIPseekerEnv(TxDb)
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
     by <- match.arg(by, c("gene", "transcript"))
 
     if (by == "gene") {
-        if ( exists("Genes", envir=ChIPseekerEnv, inherits=FALSE) ) {
-            features <- get("Genes", envir=ChIPseekerEnv)
-        } else {
+
+        features <- get_cache_element(item = ChIPseekerCache, elements = "Genes")
+
+        if(is.null(features)){
             features <- suppressMessages(genes(TxDb))
-            assign("Genes", features, envir=ChIPseekerEnv)
+            update_cache_item(item = ChIPseekerCache, list("Genes" = features))
         }
+
+        # if ( exists("Genes", envir=ChIPseekerEnv, inherits=FALSE) ) {
+        #     features <- get("Genes", envir=ChIPseekerEnv)
+        # } else {
+        #     features <- suppressMessages(genes(TxDb))
+        #     assign("Genes", features, envir=ChIPseekerEnv)
+        # }
     } else {
-        if ( exists("Transcripts", envir=ChIPseekerEnv, inherits=FALSE) ) {
-            features <- get("Transcripts", envir=ChIPseekerEnv)
-        } else {
+
+        features <- get_cache_element(item = ChIPseekerCache, elements = "Transcripts")
+
+        if(is.null(features)){
             features <- transcriptsBy(TxDb)
             features <- unlist(features)
-            assign("Transcripts", features, envir=ChIPseekerEnv)
+            update_cache_item(item = ChIPseekerCache, list("Transcripts" = features))
         }
+
+        # if ( exists("Transcripts", envir=ChIPseekerEnv, inherits=FALSE) ) {
+        #     features <- get("Transcripts", envir=ChIPseekerEnv)
+        # } else {
+        #     features <- transcriptsBy(TxDb)
+        #     features <- unlist(features)
+        #     assign("Transcripts", features, envir=ChIPseekerEnv)
+        # }
     }
 
     return(features)

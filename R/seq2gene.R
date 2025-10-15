@@ -17,27 +17,42 @@
 ##' gr <- readPeakFile(file)
 ##' genes <- seq2gene(gr, tssRegion=c(-1000, 1000), flankDistance = 3000, TxDb) 
 ##' }
+##' @importFrom yulab.utils get_cache_element
+##' @importFrom yulab.utils update_cache_item
 ##' @author Guangchuang Yu
 seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
     .ChIPseekerEnv(TxDb)
-    ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
+    # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
     
     ## Exons
-    if ( exists("exonList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-        exonList <- get("exonList", envir=ChIPseekerEnv)
-    } else {
+    exonList <- get_cache_element(item = ChIPseekerCache, elements = "exonList")
+    if(is.null(exonList)){
         exonList <- exonsBy(TxDb)
-        assign("exonList", exonList, envir=ChIPseekerEnv)
+        update_cache_item(item = ChIPseekerCache, list("exonList" = exonList))
     }
+
+    # if ( exists("exonList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+    #     exonList <- get("exonList", envir=ChIPseekerEnv)
+    # } else {
+    #     exonList <- exonsBy(TxDb)
+    #     assign("exonList", exonList, envir=ChIPseekerEnv)
+    # }
     exons <- getGenomicAnnotation.internal(seq, exonList, type = "Exon", sameStrand=sameStrand)
     
     ## Introns
-    if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {
-        intronList <- get("intronList", envir=ChIPseekerEnv)
-    } else {
+    intronList <- get_cache_element(item = ChIPseekerCache, elements = "intronList")
+
+    if(is.null(intronList)){
         intronList <- intronsByTranscript(TxDb)
-        assign("intronList", intronList, envir=ChIPseekerEnv)
+        update_cache_item(item = ChIPseekerCache, list("intronList" = intronList))
     }
+
+    # if ( exists("intronList", envir=ChIPseekerEnv, inherits=FALSE) ) {
+    #     intronList <- get("intronList", envir=ChIPseekerEnv)
+    # } else {
+    #     intronList <- intronsByTranscript(TxDb)
+    #     assign("intronList", intronList, envir=ChIPseekerEnv)
+    # }
     introns <- getGenomicAnnotation.internal(seq, intronList, type="Intron", sameStrand=sameStrand)
     
     genes <- c(exons$gene, introns$gene)
