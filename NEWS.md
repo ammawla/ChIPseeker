@@ -1,4 +1,4 @@
-# ChIPseeker 1.45.1
+# ChIPseeker 1.45.2
 
 + new cache mechanism from 'yulab.utils' (2025-10-15, Wed)
 
