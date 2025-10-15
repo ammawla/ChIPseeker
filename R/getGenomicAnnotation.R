@@ -54,9 +54,6 @@ getGenomicAnnotation <- function(peaks,
     .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
-
     annotation <- rep(NA, length(distance))
 
     flag <- rep(FALSE, length(distance))

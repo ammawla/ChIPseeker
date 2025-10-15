@@ -223,9 +223,6 @@ TXID2EG <- function(txid, geneIdOnly=FALSE) {
 TXID2TXEG <- function(txid) {
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
-
     txid2geneid <- get_cache_element(item = ChIPseekerCache, elements = "txid2geneid")
 
     if(is.null(txid2geneid)){
@@ -264,9 +261,6 @@ TXID2TXEG <- function(txid) {
 ##' @importFrom yulab.utils update_cache_item
 TXID2EGID <- function(txid) {
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
 
     txid2eg <- get_cache_element(item = ChIPseekerCache, elements = "txid2eg")
 
@@ -405,9 +399,6 @@ loadTxDb <- function(TxDb) {
 getGene <- function(TxDb, by="gene") {
     # .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
 
     by <- match.arg(by, c("gene", "transcript"))
 

@@ -66,9 +66,6 @@ getBioRegion <- function(TxDb=NULL,
   TxDb <- loadTxDb(TxDb)
   .ChIPseekerEnv(TxDb)
   # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-
-  # set env 
-  ChIPseekerCache <- "ChIPseekerEnv"
   
   label <- make_label(type = type, by = by)
   

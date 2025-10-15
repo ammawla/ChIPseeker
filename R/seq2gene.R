@@ -23,9 +23,6 @@
 seq2gene <- function(seq, tssRegion, flankDistance, TxDb, sameStrand=FALSE) {
     .ChIPseekerEnv(TxDb)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
-
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
     
     ## Exons
     exonList <- get_cache_element(item = ChIPseekerCache, elements = "exonList")

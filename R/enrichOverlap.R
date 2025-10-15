@@ -18,9 +18,6 @@
 ##' @importFrom yulab.utils update_cache_item
 ##' @author G Yu
 enrichAnnoOverlap <- function(queryPeak, targetPeak, TxDb=NULL, pAdjustMethod="BH", chainFile=NULL, distanceToTSS_cutoff=NULL) {
-    
-    # set env 
-    ChIPseekerCache <- "ChIPseekerEnv"
 
     TxDb <- loadTxDb(TxDb)
 
