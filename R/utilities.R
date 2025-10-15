@@ -397,7 +397,7 @@ loadTxDb <- function(TxDb) {
 ##' @importFrom yulab.utils get_cache_element
 ##' @importFrom yulab.utils update_cache_item
 getGene <- function(TxDb, by="gene") {
-    # .ChIPseekerEnv(TxDb)
+    .ChIPseekerEnv(TxDb, item = ChIPseekerCache)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
     by <- match.arg(by, c("gene", "transcript"))

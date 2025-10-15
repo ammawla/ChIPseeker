@@ -51,7 +51,7 @@ getGenomicAnnotation <- function(peaks,
 
 
 
-    .ChIPseekerEnv(TxDb)
+    .ChIPseekerEnv(TxDb, item = ChIPseekerCache)
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
     annotation <- rep(NA, length(distance))
@@ -104,7 +104,7 @@ getGenomicAnnotation <- function(peaks,
             fiveUTRList <- get_cache_element(item = ChIPseekerCache, elements = "fiveUTRList")
 
             if(is.null(fiveUTRList)){
-                fiveUTRList <- threeUTRsByTranscript(TxDb)
+                fiveUTRList <- fiveUTRsByTranscript(TxDb)
                 update_cache_item(item = ChIPseekerCache, list("fiveUTRList" = fiveUTRList))
             }
 
