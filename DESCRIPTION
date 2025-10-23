@@ -67,7 +67,8 @@ Suggests:
     prettydoc,
     ReactomePA,
     rmarkdown,
-    testthat
+    testthat,
+    TxDb.Hsapiens.UCSC.hg38.knownGene
 Remotes:
     GuangchuangYu/enrichplot
 URL: https://yulab-smu.top/contribution-knowledge-mining/
