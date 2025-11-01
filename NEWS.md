@@ -1,3 +1,7 @@
+# ChIPseeker 1.46.0
+
++ Bioconductor RELEASE_3_22 (2025-11-01, Sat)
+
 # ChIPseeker 1.45.2
 
 + new cache mechanism from 'yulab.utils' (2025-10-15, Wed)
