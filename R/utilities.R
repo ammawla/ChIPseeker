@@ -237,8 +237,8 @@ TXID2TXEG <- function(txid) {
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
         txidinfo[idx,]$gene_id <- txidinfo[idx,]$tx_name
         txid2geneid <- paste(mcols(txidinfo)[["tx_name"]],
-                                mcols(txidinfo)[["gene_id"]],
-                                sep="/")
+                             mcols(txidinfo)[["gene_id"]],
+                             sep="/")
         txid2geneid <- sub("/NA", "", txid2geneid)
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
@@ -268,9 +268,9 @@ TXID2TXEG <- function(txid) {
 TXID2EGID <- function(txid) {
     # ChIPseekerEnv <- get("ChIPseekerEnv", envir=.GlobalEnv)
 
-    txid2eg <- get_cache_element(item = ChIPseekerCache, elements = "txid2eg")
+    txid2geneid <- get_cache_element(item = ChIPseekerCache, elements = "txid2eg")
 
-    if(is.null(txid2eg)){
+    if(is.null(txid2geneid)){
         txdb <- get_cache_element(item = ChIPseekerCache, elements = "TXDB")
         txidinfo <- transcripts(txdb, columns=c("tx_id", "tx_name", "gene_id"))
         idx <- which(sapply(txidinfo$gene_id, length) == 0)
@@ -278,7 +278,7 @@ TXID2EGID <- function(txid) {
         txid2geneid <- as.character(mcols(txidinfo)[["gene_id"]])
 
         names(txid2geneid) <- mcols(txidinfo)[["tx_id"]]
-        update_cache_item(item = ChIPseekerCache, list("txid2eg" = txid2eg))
+        update_cache_item(item = ChIPseekerCache, list("txid2eg" = txid2geneid))
     }
 
     # if (exists("txid2eg", envir=ChIPseekerEnv, inherits=FALSE)) {
